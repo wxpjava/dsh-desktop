@@ -1,0 +1,60 @@
+name: Build macOS (dmg + zip)
+
+on:
+  # 手动触发：仓库页面 Actions → Build macOS → Run workflow
+  workflow_dispatch: {}
+  # 打 tag（v*）时自动触发（可选）
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-mac:
+    name: Build macOS (${{ matrix.arch }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Apple Silicon（M 系列）
+          - runner: macos-14
+            arch: arm64
+          # Intel Mac
+          - runner: macos-13
+            arch: x64
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - name: Checkout dsh-desktop
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # DSH 源码是公开仓库，直接浅克隆到工作区外（避免污染本仓库）。
+      - name: Clone DSH checkout
+        run: git clone --depth 1 https://github.com/deepseek-ai/deepseek-harness.git ../deepseek-harness
+
+      - name: Install DSH dependencies
+        run: pnpm install
+        working-directory: ../deepseek-harness
+
+      - name: Install desktop dependencies
+        run: npm install
+
+      # 组装 Mac 版 host（下载 Darwin Node + 安装 arm64/x64 原生依赖）→ 打 dmg + zip
+      - name: Assemble host and build (${{ matrix.arch }})
+        run: node scripts/rebuild.cjs --checkout ../deepseek-harness
+
+      - name: Upload artifacts (${{ matrix.arch }})
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-${{ matrix.arch }}
+          path: |
+            dist/*.dmg
+            dist/*.zip
+          if-no-files-found: error

@@ -1,0 +1,63 @@
+{
+  "name": "dsh-desktop",
+  "version": "0.1.0",
+  "description": "Desktop shell for DeepSeek Harness: launches the local dsh host and wraps the web GUI in a native window.",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "smoke": "node scripts/smoke-host.cjs",
+    "package:node": "node scripts/fetch-node.cjs host",
+    "package:host": "node scripts/package-host.cjs",
+    "rebuild": "node scripts/rebuild.cjs",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "cross-spawn": "^7.0.6"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "ai.deepseek.dsh-desktop",
+    "productName": "DeepSeek Harness Desktop",
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "host-launcher.cjs",
+      "host-config.cjs",
+      "tray-icon.cjs"
+    ],
+    "extraResources": [
+      {
+        "from": "host",
+        "to": "host"
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerLanguages": ["zh_CN", "en_US"],
+      "language": "2052"
+    },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "category": "public.app-category.developer-tools",
+      "artifactName": "${productName} ${version} ${arch}.${ext}",
+      "identity": null,
+      "minimumSystemVersion": "11.0"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Development"
+    }
+  }
+}

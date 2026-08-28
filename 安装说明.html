@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>DeepSeek Harness Desktop 安装说明</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+    color: #24292f;
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 0;
+  }
+  h1 {
+    font-size: 25px;
+    margin: 0 0 6px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #1a73e8;
+  }
+  .subtitle { color: #57606a; font-size: 14px; margin: 8px 0 4px; }
+  .tip {
+    background: #eef4ff;
+    border-left: 4px solid #1a73e8;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 14px 0;
+    color: #1a3a5c;
+  }
+  h2 {
+    font-size: 19px;
+    color: #1a73e8;
+    margin: 30px 0 10px;
+    padding-left: 10px;
+    border-left: 4px solid #1a73e8;
+    page-break-after: avoid;
+  }
+  h3 { font-size: 16px; margin: 20px 0 8px; page-break-after: avoid; }
+  p { margin: 8px 0; }
+  ul, ol { margin: 8px 0; padding-left: 26px; }
+  li { margin: 4px 0; }
+  strong { color: #1f2328; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+    font-size: 13.5px;
+  }
+  th, td {
+    border: 1px solid #d0d7de;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: #f0f4f8; color: #1f2328; font-weight: 600; }
+  tr:nth-child(even) td { background: #fafbfc; }
+  code {
+    background: #f3f4f6;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 12.5px;
+    color: #a6214f;
+  }
+  pre {
+    background: #f6f8fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    margin: 10px 0;
+  }
+  pre code { background: none; padding: 0; color: #24292f; }
+  blockquote {
+    border-left: 4px solid #dfe2e5;
+    margin: 12px 0;
+    padding: 4px 16px;
+    color: #57606a;
+    background: #f6f8fa;
+    border-radius: 0 6px 6px 0;
+  }
+  .qa { margin: 16px 0; }
+  .qa h3 { color: #1f2328; }
+  .qa .fix {
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    padding: 8px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 6px 0;
+  }
+  .footer {
+    margin-top: 32px;
+    padding-top: 12px;
+    border-top: 1px solid #d0d7de;
+    color: #57606a;
+    font-size: 12px;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<h1>DeepSeek Harness Desktop 安装说明</h1>
+<p class="subtitle">桌面版外壳：启动本地 DeepSeek Harness（DSH）服务，并把它的 Web 界面装进独立窗口。<strong>双击即用，无需预装 Node.js、pnpm 或 dsh。</strong></p>
+
+<h2>一、安装前须知</h2>
+<table>
+  <tr><th style="width:28%">项目</th><th>说明</th></tr>
+  <tr><td>系统要求</td><td>Windows 10 / 11（64 位）</td></tr>
+  <tr><td>安装包大小</td><td>约 317 MB</td></tr>
+  <tr><td>磁盘占用</td><td>安装后约 400~500 MB（含内置运行时与依赖）</td></tr>
+  <tr><td>前置依赖</td><td>无（安装包已内置 Node 运行时与完整 DSH）</td></tr>
+  <tr><td>联网要求</td><td>安装本身无需联网；运行时可离线使用本地服务</td></tr>
+</table>
+
+<h2>二、安装步骤</h2>
+<ol>
+  <li><strong>双击运行</strong> <code>DeepSeek Harness Desktop Setup 0.1.0.exe</code>。</li>
+  <li>若弹出 Windows SmartScreen 提示（“Windows 已保护你的电脑”），点击 <strong>「更多信息」→「仍要运行」</strong>。</li>
+  <li>选择安装语言（默认<strong>简体中文</strong>）。</li>
+  <li>进入 <strong>「选择安装位置」</strong> 页面：
+    <ul>
+      <li>默认安装到当前用户目录下的 <code>Programs</code> 文件夹；</li>
+      <li>点击 <strong>「浏览」</strong> 可自定义安装目录（例如 <code>D:\soft\ai\dsh</code>）。</li>
+    </ul>
+  </li>
+  <li>按需勾选 <strong>桌面快捷方式</strong>、<strong>开始菜单快捷方式</strong>（默认都勾选）。</li>
+  <li>点击 <strong>「安装」</strong>，等待进度条完成。</li>
+  <li>点击 <strong>「完成」</strong>，即可立即启动。</li>
+</ol>
+<div class="tip">💡 安装到自定义目录（如 D 盘）后，再次重装到<strong>不同目录</strong>时，请先卸载旧版本（见下文“卸载”），否则可能因旧环境残留导致首次启动失败。</div>
+
+<h2>三、首次启动</h2>
+<ol>
+  <li>双击<strong>桌面快捷方式</strong>或开始菜单中的「DeepSeek Harness Desktop」。</li>
+  <li>应用会自动在本地启动 DSH 服务，稍等几秒（首次可能略慢，需初始化环境）。</li>
+  <li>进入主界面后即可正常使用。</li>
+</ol>
+
+<h2>四、日常使用</h2>
+<ul>
+  <li><strong>关闭窗口 = 最小化到托盘</strong>：本地服务仍在后台运行，方便快速恢复。</li>
+  <li><strong>重新打开</strong>：单击/双击系统托盘图标，或再次点击桌面快捷方式。</li>
+  <li><strong>完全退出</strong>：右键托盘图标 → <strong>「退出」</strong>，或菜单栏 <code>File → Quit</code>。</li>
+  <li><strong>更换 DSH 来源</strong>：菜单栏 <code>File → 重新选择 DSH host…</code>，保存后重启生效（一般无需操作）。</li>
+</ul>
+
+<h2>五、卸载</h2>
+<ol>
+  <li>打开 <strong>「设置」→「应用」→「已安装的应用」</strong>，找到 <strong>DeepSeek Harness Desktop</strong>，点击 <strong>「卸载」</strong>；</li>
+  <li>或运行安装目录下的 <code>Uninstall DeepSeek Harness Desktop.exe</code>。</li>
+</ol>
+<blockquote>卸载<strong>不会</strong>删除你的用户数据与配置（保存在 <code>%USERPROFILE%\.dsh</code> 目录），重装后通常可继续使用。</blockquote>
+
+<h2>六、常见问题（FAQ）</h2>
+
+<div class="qa">
+  <h3>1. 启动报错 Failed to start the local host: timed out after 60000ms …</h3>
+  <p><strong>原因</strong>：本地环境目录 <code>%USERPROFILE%\.dsh\profiles\node_modules</code> 下残留了旧版本/旧安装位置的目录联接（junction），新版本尝试重建链接时失败。</p>
+  <p><strong>解决</strong>：关闭程序后，删除该目录，下次启动会自动重建：</p>
+  <pre><code>%USERPROFILE%\.dsh\profiles\node_modules</code></pre>
+  <div class="fix">例如在文件资源管理器地址栏粘贴 <code>%USERPROFILE%\.dsh\profiles</code> 回车，删除其中的 <code>node_modules</code> 文件夹，再重新启动应用即可。</div>
+</div>
+
+<div class="qa">
+  <h3>2. 换目录重装后启动失败</h3>
+  <p>同上，删除 <code>%USERPROFILE%\.dsh\profiles\node_modules</code> 后重启应用。</p>
+</div>
+
+<div class="qa">
+  <h3>3. Windows SmartScreen / 杀毒软件拦截</h3>
+  <p>本程序未做代码签名，属正常提示。点击「更多信息 → 仍要运行」，或在杀毒软件中将其加入信任区。</p>
+</div>
+
+<div class="qa">
+  <h3>4. 想彻底重置应用</h3>
+  <p>删除 <code>%USERPROFILE%\.dsh</code> 目录（会清除本地配置与缓存），再重新启动应用。</p>
+</div>
+
+<h2>七、更新方式</h2>
+<ul>
+  <li>下载新版本安装包后，<strong>先卸载旧版本</strong>（用户数据会保留），再运行新安装包即可。</li>
+  <li>应用内的 DSH 版本随安装包快照，升级需重新打包安装。</li>
+</ul>
+
+<div class="footer">DeepSeek Harness Desktop · 安装说明</div>
+
+</body>
+</html>
