@@ -10,7 +10,7 @@
     "package:node": "node scripts/fetch-node.cjs host",
     "package:host": "node scripts/package-host.cjs",
     "rebuild": "node scripts/rebuild.cjs",
-    "dist": "electron-builder"
+    "dist": "electron-builder --publish never"
   },
   "dependencies": {
     "cross-spawn": "^7.0.6"
