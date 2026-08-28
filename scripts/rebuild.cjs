@@ -80,6 +80,7 @@ function patchHostDshAppBoot(hostDir) {
 
 function main() {
   const checkout = getArg('--checkout') || process.env.DSH_DESKTOP_DSH_CHECKOUT || 'D:\\develop\\DeepSeek Harness'
+  const arch = getArg('--arch')
   const skipHost = hasFlag('--skip-host')
   const skipDist = hasFlag('--skip-dist')
 
@@ -103,7 +104,11 @@ function main() {
   }
 
   if (!skipDist) {
-    run('npm', ['run', 'dist'], { label: '步骤 2/2：打包安装包（electron-builder）' })
+    const ebCli = path.join(root, 'node_modules', 'electron-builder', 'cli.js')
+    const archArgs = arch ? [`--${arch}`] : []
+    run(process.execPath, [ebCli, ...archArgs], {
+      label: '步骤 2/2：打包安装包（electron-builder' + (arch ? ' [' + arch + ']' : '') + '）',
+    })
   }
 
   // 跨平台收集产物：Windows .exe、macOS .dmg/.zip、Linux .AppImage。
