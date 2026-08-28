@@ -43,6 +43,41 @@ function run(command, args, opts = {}) {
   if (result.status !== 0) throw new Error(`${label} 退出码 ${result.status}`)
 }
 
+/**
+ * 修复打包出的 dsh-app-boot 在 Windows 上的 junction 删除 bug。
+ * DSH 的 ensureSymlink 用 unlinkSync 删目录 junction 会 EPERM（例如 checkout 与
+ * 打包 host 之间切换时）。这里把它改写为：目录 junction 用 rmdirSync，文件链接
+ * 用 unlinkSync 兜底。这样从 checkout 重新组装 host 后，重新打包也不带 bug。
+ */
+function patchHostDshAppBoot(hostDir) {
+  const target = path.join(hostDir, 'node_modules', '@deepseek-ai', 'dsh-app-boot', 'lib', 'index.js')
+  if (!fs.existsSync(target)) {
+    console.log('  [patch] dsh-app-boot 未找到，跳过 junction 修复')
+    return
+  }
+  const before = fs.readFileSync(target, 'utf8')
+  let content = before
+
+  // 1) import 行补上 rmdirSync
+  content = content.replace(
+    /import \{ existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, symlinkSync, unlinkSync, writeFileSync \} from "node:fs";/,
+    'import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, rmdirSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";',
+  )
+
+  // 2) ensureSymlink 里删链接改为 rmdirSync（目录 junction）+ unlinkSync（文件链接）兜底
+  content = content.replace(
+    /\t\tif \(readlinkSync\(link\) === target\) return;\n\t\tunlinkSync\(link\);/,
+    '\t\tif (readlinkSync(link) === target) return;\n\t\ttry { rmdirSync(link); } catch (e) { if (e.code === "ENOTDIR" || e.code === "EISDIR") unlinkSync(link); else if (e.code !== "ENOENT") throw e; }',
+  )
+
+  if (content !== before) {
+    fs.writeFileSync(target, content)
+    console.log('  [patch] 已应用 dsh-app-boot junction 修复')
+  } else {
+    console.log('  [patch] dsh-app-boot 已是修复版或未匹配到，跳过')
+  }
+}
+
 function main() {
   const checkout = getArg('--checkout') || process.env.DSH_DESKTOP_DSH_CHECKOUT || 'D:\\develop\\DeepSeek Harness'
   const skipHost = hasFlag('--skip-host')
@@ -64,6 +99,7 @@ function main() {
     run(process.execPath, [path.join(root, 'scripts', 'package-host.cjs'), '--checkout', checkout], {
       label: '步骤 1/2：组装内置 host（build:official → pack → npm install → 下载 Node）',
     })
+    patchHostDshAppBoot(path.join(root, 'host'))
   }
 
   if (!skipDist) {
