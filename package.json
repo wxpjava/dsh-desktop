@@ -22,6 +22,7 @@
   "build": {
     "appId": "ai.deepseek.dsh-desktop",
     "productName": "DeepSeek Harness Desktop",
+    "publish": "never",
     "files": [
       "main.cjs",
       "preload.cjs",

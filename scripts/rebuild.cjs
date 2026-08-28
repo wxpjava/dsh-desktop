@@ -105,7 +105,7 @@ function main() {
 
   if (!skipDist) {
     const ebCli = path.join(root, 'node_modules', 'electron-builder', 'cli.js')
-    const archArgs = arch ? [`--${arch}`] : []
+    const archArgs = [...(arch ? [`--${arch}`] : []), '--publish', 'never']
     run(process.execPath, [ebCli, ...archArgs], {
       label: '步骤 2/2：打包安装包（electron-builder' + (arch ? ' [' + arch + ']' : '') + '）',
     })
