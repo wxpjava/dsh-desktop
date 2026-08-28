@@ -35,9 +35,15 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      # DSH 源码是公开仓库，直接浅克隆到工作区外（避免污染本仓库）。
+      # DSH 源码默认拉官方仓库（deepseek-ai/deepseek-harness），浅克隆到工作区外。
+      # 想用自己的 fork（带本地改动）时：仓库 Settings → Secrets and variables →
+      # Actions → Variables 里添加 DSH_REPO，值填你的仓库地址，例如
+      #   https://github.com/你的用户名/deepseek-harness.git
+      # （若是私有 fork，还需在 Secrets 配 DSH_REPO_TOKEN，并在下方 clone 命令带 token）
       - name: Clone DSH checkout
-        run: git clone --depth 1 https://github.com/deepseek-ai/deepseek-harness.git ../deepseek-harness
+        env:
+          DSH_REPO: ${{ vars.DSH_REPO }}
+        run: git clone --depth 1 "${DSH_REPO:-https://github.com/deepseek-ai/deepseek-harness.git}" ../deepseek-harness
 
       - name: Install DSH dependencies
         run: pnpm install

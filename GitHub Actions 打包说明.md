@@ -102,17 +102,20 @@ git push origin v0.1.0
 正常。首次要 `pnpm install`（DSH 依赖多）+ `build:official`（完整构建）+ 下载 Node/Electron。之后有缓存会明显变快。
 
 ### 2. 打的是 GitHub 上的 DSH，不是我本地改的
-CI clone 的是 `deepseek-harness` 仓库的 `master`。若你改过 DSH 源码，需要先 fork 官方仓库、push 你的改动，再把 workflow 里的 clone 地址改成你的 fork。
+CI 默认 clone 的是 `deepseek-harness` 仓库的 `master`。若你改过 DSH 源码，需先 fork 官方仓库、push 你的改动，再到仓库 Settings → Variables 添加 `DSH_REPO` 指向你的 fork（见第 4 条）。
 
 ### 3. 只想要 arm64（M 系列）
 删除 `.github/workflows/build-mac.yml` 里 `matrix.include` 中的 `x64` 那一项即可。
 
-### 4. 私有化 / 换 DSH 来源
-若以后 DSH 仓库变成私有，把 workflow 里 clone 步骤改为带 token：
-```yaml
-run: git clone --depth 1 https://x-access-token:${{ secrets.DSH_REPO_TOKEN }}@github.com/deepseek-ai/deepseek-harness.git ../deepseek-harness
-```
-并在仓库 Settings → Secrets 里配 `DSH_REPO_TOKEN`。
+### 4. 换 DSH 来源 / 私有化
+workflow 已支持用**仓库变量** `DSH_REPO` 指定 DSH 源码仓库，**无需改 yml**。
+
+**配置方法**：仓库 Settings → **Secrets and variables** → **Actions** → **Variables** → 添加 `DSH_REPO`：
+
+- **不配** `DSH_REPO` → 默认拉官方 `deepseek-ai/deepseek-harness`；
+- **配置为** `https://github.com/你的用户名/deepseek-harness.git` → 拉你的 fork（带本地改动）。
+
+**私有 fork**：拉私有仓库需在 Secrets 加 `DSH_REPO_TOKEN`（对该仓库有读权限的 PAT），并把 clone 命令改为带 token 形式（需要的话我可以帮你改）。
 
 ### 5. 顺便打 Windows 包
 本地已有 `一键打包.bat`；如需 CI 也打 Windows，可仿照 `build-mac.yml` 增加一个 `runs-on: windows-latest` 的 job。
