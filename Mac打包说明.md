@@ -81,17 +81,25 @@ npm run rebuild -- --checkout "/Users/你的用户名/DeepSeek Harness"
 2. 把 **DeepSeek Harness Desktop** 拖入 **Applications**；
 3. 首次打开时，因应用**未签名**，Gatekeeper 会拦截。
 
-### 绕过 Gatekeeper（任选其一）
+### 若提示「已损坏，无法打开」（最常见）
 
-**方法 A —— 右键打开（最简单）**
-在「应用程序」里 **右键** App → **「打开」** → 弹窗里再点 **「打开」**（首次之后即可正常双击启动）。
+因为应用**未签名**且有下载隔离标记，首次打开会提示 *「"DeepSeek Harness Desktop"已损坏，无法打开」*——**文件没坏**，这是未签名分发的正常拦截。解决：
 
-**方法 B —— 命令行解除隔离标记**
-```bash
-xattr -cr "/Applications/DeepSeek Harness Desktop.app"
-```
+1. 先把 App 拖到「应用程序」；
+2. 打开「终端」执行：
+   ```bash
+   xattr -cr "/Applications/DeepSeek Harness Desktop.app"
+   ```
+3. 回到「应用程序」双击，即可正常打开。
 
-**方法 C —— 系统设置放行**
+> 若仍不行，再执行 `sudo spctl --add --label "DeepSeek" "/Applications/DeepSeek Harness Desktop.app"`。
+
+### 其它绕过方式（如未提示损坏，仅「无法验证开发者」）
+
+**方法 A —— 右键打开**
+在「应用程序」里 **右键** App → **「打开」** → 弹窗里再点 **「打开」**。
+
+**方法 B —— 系统设置放行**
 「系统设置 → 隐私与安全性」拉到最下方，点 **「仍要打开」**。
 
 ---
