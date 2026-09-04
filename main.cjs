@@ -1,6 +1,6 @@
 'use strict'
 
-const { app, BrowserWindow, dialog, Menu, nativeImage, Notification, shell, Tray } = require('electron')
+const { app, BrowserWindow, dialog, Menu, nativeImage, Notification, shell, Tray, nativeTheme } = require('electron')
 const path = require('node:path')
 const { launchHost, resolveBundledLaunch } = require('./host-launcher.cjs')
 const hostConfig = require('./host-config.cjs')
@@ -11,6 +11,9 @@ let host = null
 let tray = null
 let quitting = false
 let trayHintShown = false
+
+// Match the dark web UI: native Windows title bar follows system theme unless forced.
+nativeTheme.themeSource = 'dark'
 
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
