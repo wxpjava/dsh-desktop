@@ -129,7 +129,16 @@ function main() {
   // Use a project-local cache: the machine's global npm cache can be corrupted
   // or AV-locked (EPERM), which surfaces as confusing tar/cleanup failures.
   const npmCache = path.resolve(process.cwd(), '.npm-cache')
-  const npmArgs = ['install', '--cache', npmCache, '--no-audit', '--no-fund', '--package-lock=false']
+  const npmArgs = [
+    'install',
+    '--cache', npmCache,
+    '--no-audit',
+    '--no-fund',
+    '--package-lock=false',
+    // Avoid npm arborist crash: "Cannot read properties of null (reading 'edgesOut')"
+    // when resolving optional/complex peers (e.g. vitest) across hundreds of local tarballs.
+    '--legacy-peer-deps',
+  ]
   // Keep optional deps except on Linux: koffi ships its native binding as an
   // optional platform package (@koromix/koffi-<platform>-<arch>), and omitting
   // it leaves koffi without its .node binary. On Linux only, omit optional deps

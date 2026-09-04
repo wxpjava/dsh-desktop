@@ -9,7 +9,9 @@
     "smoke": "node scripts/smoke-host.cjs",
     "package:node": "node scripts/fetch-node.cjs host",
     "package:host": "node scripts/package-host.cjs",
-    "rebuild": "node scripts/rebuild.cjs",
+    "rebuild": "node scripts/rebuild-all.cjs --mode local",
+    "rebuild:remote": "node scripts/rebuild-all.cjs --mode remote",
+    "rebuild:all": "node scripts/rebuild-all.cjs",
     "dist": "electron-builder --publish never"
   },
   "dependencies": {
@@ -27,7 +29,11 @@
       "preload.cjs",
       "host-launcher.cjs",
       "host-config.cjs",
-      "tray-icon.cjs"
+      "tray-icon.cjs",
+      "scripts/**/*.cjs"
+    ],
+    "asarUnpack": [
+      "scripts/**/*"
     ],
     "extraResources": [
       {
@@ -47,17 +53,6 @@
       "createStartMenuShortcut": true,
       "installerLanguages": ["zh_CN", "en_US"],
       "language": "2052"
-    },
-    "mac": {
-      "target": ["dmg", "zip"],
-      "category": "public.app-category.developer-tools",
-      "artifactName": "${productName} ${version} ${arch}.${ext}",
-      "identity": null,
-      "minimumSystemVersion": "11.0"
-    },
-    "linux": {
-      "target": "AppImage",
-      "category": "Development"
     }
   }
 }

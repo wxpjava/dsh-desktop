@@ -19,24 +19,37 @@ const URL_LINE = /dsh web:\s*(https?:\/\/\S+)/
  * Resolve the bundled host, when the app ships one (see scripts/package-host.cjs):
  *   <app>/host/node/node(.exe)                          Node runtime
  *   <app>/host/node_modules/@deepseek-ai/dsh/lib/bin.js CLI entry
+ *
+ * Priority:
+ *   1) userData/host override (one-click update layer)
+ *   2) packaged resources/host or dev ./host
+ *
  * Returns null when no bundled host is present — the caller then falls back to a
  * system `dsh` (env → saved config → auto-detect → picker).
  *
- * @param {{ isPackaged?: boolean, resourcesPath?: string, appPath?: string }} appInfo
- * @returns {{ program: string, baseArgs: string[], cwd: string, bundled: boolean } | null}
+ * @param {{ isPackaged?: boolean, resourcesPath?: string, appPath?: string, userDataPath?: string }} appInfo
+ * @returns {{ program: string, baseArgs: string[], cwd: string, bundled: boolean, override?: boolean } | null}
  */
 function resolveBundledLaunch(appInfo = {}) {
+  const candidates = []
+  if (appInfo.userDataPath) {
+    candidates.push({ dir: path.join(appInfo.userDataPath, 'host'), override: true })
+  }
   const bundledDir = appInfo.isPackaged
     ? path.join(appInfo.resourcesPath ?? '', 'host')
     : path.join(appInfo.appPath ?? process.cwd(), 'host')
-  const nodeBin = path.join(
-    bundledDir,
-    'node',
-    process.platform === 'win32' ? 'node.exe' : path.join('bin', 'node'),
-  )
-  const dshBin = path.join(bundledDir, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
-  if (fs.existsSync(nodeBin) && fs.existsSync(dshBin)) {
-    return { program: nodeBin, baseArgs: [dshBin], cwd: bundledDir, bundled: true }
+  candidates.push({ dir: bundledDir, override: false })
+
+  for (const { dir, override } of candidates) {
+    const nodeBin = path.join(
+      dir,
+      'node',
+      process.platform === 'win32' ? 'node.exe' : path.join('bin', 'node'),
+    )
+    const dshBin = path.join(dir, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
+    if (fs.existsSync(nodeBin) && fs.existsSync(dshBin)) {
+      return { program: nodeBin, baseArgs: [dshBin], cwd: dir, bundled: true, override }
+    }
   }
   return null
 }

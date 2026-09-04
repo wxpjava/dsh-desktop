@@ -144,6 +144,7 @@
   <li><strong>重新打开</strong>：单击/双击系统托盘图标，或再次点击桌面快捷方式。</li>
   <li><strong>完全退出</strong>：右键托盘图标 → <strong>「退出」</strong>，或菜单栏 <code>File → Quit</code>。</li>
   <li><strong>更换 DSH 来源</strong>：菜单栏 <code>File → 重新选择 DSH host…</code>，保存后重启生效（一般无需操作）。</li>
+  <li><strong>更新内置 Host（不重装）</strong>：菜单栏 <code>File → 一键更新内置 Host…</code>（需本机 Node + pnpm；可选本地源码或远程稳定版）。</li>
 </ul>
 
 <h2>五、卸载</h2>
@@ -180,8 +181,9 @@
 
 <h2>七、更新方式</h2>
 <ul>
-  <li>下载新版本安装包后，<strong>先卸载旧版本</strong>（用户数据会保留），再运行新安装包即可。</li>
-  <li>应用内的 DSH 版本随安装包快照，升级需重新打包安装。</li>
+  <li><strong>重装安装包</strong>：下载新版本后，<strong>先卸载旧版本</strong>（用户数据会保留），再运行新安装包。</li>
+  <li><strong>只更新内置 Host</strong>：菜单 <code>File → 一键更新内置 Host…</code>，写入 <code>%APPDATA%\dsh-desktop\host</code> 覆盖层后重启（需本机有 Node + pnpm；远程还需 git）。</li>
+  <li>Web 里的插件/市场更新与 Host 无关，在应用内「检查更新」即可。</li>
 </ul>
 
 <div class="footer">DeepSeek Harness Desktop · 安装说明</div>

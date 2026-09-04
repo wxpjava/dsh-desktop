@@ -4,4 +4,6 @@ dist/
 release/
 .npm-cache/
 npm-cache/
+.dsh-src/
+pack-config.json
 *.log
