@@ -53,7 +53,7 @@ function launchHost(launch, options = {}) {
   const baseArgs = launch.baseArgs ?? []
   const cwd = launch.cwd ?? process.cwd()
   const port = options.port ?? process.env.DSH_DESKTOP_PORT ?? '0'
-  const timeoutMs = Number(options.timeoutMs ?? process.env.DSH_DESKTOP_TIMEOUT_MS ?? 60000)
+  const timeoutMs = Number(options.timeoutMs ?? process.env.DSH_DESKTOP_TIMEOUT_MS ?? 180000)
 
   const args = [...baseArgs, 'web', '--no-open', '--port', String(port)]
 
