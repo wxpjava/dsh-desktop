@@ -55,6 +55,31 @@ function resolveBundledLaunch(appInfo = {}) {
 }
 
 /**
+ * Kill leftover dsh-pet Electron helpers from a previous host process.
+ * On Windows, host exit/restart often leaves the transparent pet window alive;
+ * the next host then starts another → two pets.
+ */
+function killOrphanDshPetHelpers() {
+  if (process.platform !== 'win32') {
+    try {
+      spawn('pkill', ['-f', 'dsh-pet/runtime/electron-helper'], { stdio: 'ignore' })
+    } catch { /* best effort */ }
+    return
+  }
+  try {
+    spawn(
+      'powershell.exe',
+      [
+        '-NoProfile',
+        '-Command',
+        "Get-CimInstance Win32_Process -Filter \"Name='electron.exe'\" | Where-Object { $_.CommandLine -match 'dsh-pet[\\\\/]+runtime[\\\\/]+electron-helper' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }",
+      ],
+      { stdio: 'ignore', windowsHide: true },
+    )
+  } catch { /* best effort */ }
+}
+
+/**
  * Launch the host and resolve with the URL it reports.
  *
  * @param {{ program: string, baseArgs?: string[], cwd?: string }} launch
@@ -67,6 +92,8 @@ function launchHost(launch, options = {}) {
   const cwd = launch.cwd ?? process.cwd()
   const port = options.port ?? process.env.DSH_DESKTOP_PORT ?? '0'
   const timeoutMs = Number(options.timeoutMs ?? process.env.DSH_DESKTOP_TIMEOUT_MS ?? 180000)
+
+  killOrphanDshPetHelpers()
 
   const args = [...baseArgs, 'web', '--no-open', '--port', String(port)]
 
@@ -115,7 +142,7 @@ function launchHost(launch, options = {}) {
       if (child.pid == null) return
       if (process.platform === 'win32') {
         // Kill the whole tree: the host spawns LSP servers, shells, sandboxes.
-        try { spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' }) } catch { /* best effort */ }
+        try { spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true }) } catch { /* best effort */ }
       } else {
         try { process.kill(-child.pid, 'SIGTERM') } catch { /* best effort */ }
       }
@@ -123,4 +150,4 @@ function launchHost(launch, options = {}) {
   }
 }
 
-module.exports = { launchHost, resolveBundledLaunch }
+module.exports = { launchHost, resolveBundledLaunch, killOrphanDshPetHelpers }

@@ -6,9 +6,18 @@
 
 const fs = require('node:fs')
 const path = require('node:path')
-const spawn = require('cross-spawn')
+const { spawnSync: nodeSpawnSync } = require('node:child_process')
 
 const root = path.join(__dirname, '..')
+
+/** System-Node-safe spawn (no cross-spawn). Windows needs shell for .cmd shims. */
+function spawnSync(command, args, opts = {}) {
+  const options = { encoding: 'utf8', ...opts }
+  if (process.platform === 'win32' && options.shell === undefined) {
+    options.shell = true
+  }
+  return nodeSpawnSync(command, args, options)
+}
 
 function getArg(argv, name) {
   const i = argv.indexOf(name)
@@ -24,7 +33,7 @@ function run(command, args, opts = {}) {
   console.log('\n' + '='.repeat(68))
   console.log('>> ' + label)
   console.log('='.repeat(68))
-  const result = spawn.sync(command, args, {
+  const result = spawnSync(command, args, {
     stdio: 'inherit',
     cwd: opts.cwd || root,
     env: { ...process.env, ...(opts.env || {}) },
@@ -88,7 +97,7 @@ function printArtifacts(artifacts, started) {
 }
 
 function whichOnPath(name) {
-  const result = spawn.sync(process.platform === 'win32' ? 'where' : 'which', [name], { encoding: 'utf8' })
+  const result = spawnSync(process.platform === 'win32' ? 'where' : 'which', [name], { encoding: 'utf8' })
   if (result.status !== 0) return null
   return String(result.stdout).split(/\r?\n/).find(Boolean) ?? null
 }

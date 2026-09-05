@@ -7,8 +7,8 @@ const spawn = require('cross-spawn')
 const { launchHost, resolveBundledLaunch } = require('./host-launcher.cjs')
 const hostConfig = require('./host-config.cjs')
 const packConfig = require('./scripts/pack-config.cjs')
-const { whichOnPath } = require('./scripts/rebuild-shared.cjs')
 const { writeBadge } = require('./tray-icon.cjs')
+const { whichOnPath } = hostConfig
 
 let mainWindow = null
 let host = null
@@ -16,6 +16,8 @@ let tray = null
 let quitting = false
 let trayHintShown = false
 let updatingHost = false
+let currentLaunch = null
+let restartingHost = false
 
 // Match the dark web UI: native Windows title bar follows system theme unless forced.
 nativeTheme.themeSource = 'dark'
@@ -45,6 +47,46 @@ function scriptsDir() {
   return path.join(base, 'scripts')
 }
 
+function attachHostExitHandler() {
+  if (!host || !host.child) return
+  host.child.on('exit', (code, signal) => {
+    if (updatingHost || restartingHost || quitting) return
+    // Plugin-market "立即重启" (and similar) kills our child; Desktop owns the
+    // process, so relaunch instead of treating it as a fatal crash.
+    void relaunchHostAfterExit(code, signal)
+  })
+}
+
+async function relaunchHostAfterExit(code, signal) {
+  if (!currentLaunch || quitting) {
+    host = null
+    return
+  }
+  restartingHost = true
+  host = null
+  try {
+    host = launchHost(currentLaunch)
+    attachHostExitHandler()
+    const url = await host.ready
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.loadURL(url)
+    } else {
+      createWindow(url)
+    }
+  } catch (err) {
+    const detail = err && err.message ? err.message : String(err)
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      dialog.showErrorBox(
+        'DeepSeek Harness Desktop',
+        `本地 Host 退出后未能自动拉起 (code=${code}, signal=${signal}).\n${detail}`,
+      )
+    }
+    app.quit()
+  } finally {
+    restartingHost = false
+  }
+}
+
 async function start() {
   Menu.setApplicationMenu(buildMenu())
   try {
@@ -53,17 +95,9 @@ async function start() {
       app.quit()
       return
     }
+    currentLaunch = launch
     host = launchHost(launch)
-
-    // If the host dies after startup, surface it instead of showing a dead page.
-    host.child.on('exit', (code, signal) => {
-      if (updatingHost) return
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        dialog.showErrorBox('DeepSeek Harness Desktop', `The local host exited unexpectedly (code=${code}, signal=${signal}).`)
-      }
-      host = null
-      app.quit()
-    })
+    attachHostExitHandler()
 
     const url = await host.ready
     createTray()

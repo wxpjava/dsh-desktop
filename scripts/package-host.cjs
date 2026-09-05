@@ -19,10 +19,10 @@ const fs = require('node:fs')
 const os = require('node:os')
 const path = require('node:path')
 const { pathToFileURL } = require('node:url')
-const spawn = require('cross-spawn')
+const { sync: spawnSync } = require('./spawn-sync.cjs')
 
 function run(cmd, args, opts = {}) {
-  const result = spawn.sync(cmd, args, { stdio: 'inherit', ...opts })
+  const result = spawnSync(cmd, args, { stdio: 'inherit', ...opts })
   if (result.error) throw result.error
   if (result.status !== 0) throw new Error(`${cmd} ${args.join(' ')} exited ${String(result.status)}`)
 }
@@ -49,7 +49,7 @@ function argv() {
 
 /** Read the name/version from a tarball's `package/package.json` (bsdtar handles npm tgz). */
 function packageIdentity(tarball) {
-  const result = spawn.sync('tar', ['-xOf', tarball, 'package/package.json'], { encoding: 'utf8' })
+  const result = spawnSync('tar', ['-xOf', tarball, 'package/package.json'], { encoding: 'utf8' })
   if (result.status !== 0) throw new Error(`could not read ${tarball}: ${result.stderr}`)
   return JSON.parse(result.stdout)
 }
@@ -108,8 +108,7 @@ function vendorPackageDirs(root) {
 }
 
 /**
- * Pack every package directory into `destination` with pnpm. cross-spawn handles
- * the Windows `.cmd` shim that DSH's release script (raw spawnSync) cannot.
+ * Pack every package directory into `destination` with pnpm.
  */
 function packAll(dirs, destination) {
   fs.mkdirSync(destination, { recursive: true })
@@ -193,7 +192,7 @@ function main() {
   const nodeBin = path.join(hostDir, 'node', process.platform === 'win32' ? 'node.exe' : path.join('bin', 'node'))
   const dshBin = path.join(hostDir, 'node_modules', '@deepseek-ai', 'dsh', 'lib', 'bin.js')
   if (!fs.existsSync(dshBin)) throw new Error(`install did not produce ${dshBin}`)
-  const version = spawn.sync(nodeBin, [dshBin, '--version'], { encoding: 'utf8' })
+  const version = spawnSync(nodeBin, [dshBin, '--version'], { encoding: 'utf8', shell: false })
   console.log(`package-host: bundled host reports ${version.stdout.trim()}`)
   console.log(`package-host: done → ${hostDir}`)
 }

@@ -7,7 +7,7 @@
 
 const path = require('node:path')
 const readline = require('node:readline')
-const spawn = require('cross-spawn')
+const { sync: spawnSync } = require('./spawn-sync.cjs')
 const packConfig = require('./pack-config.cjs')
 
 const root = packConfig.REPO_ROOT
@@ -24,11 +24,12 @@ function runRebuild(mode, extraArgs = []) {
   console.log('\n' + '='.repeat(68))
   console.log('>> node ' + args.map((a) => (/\s/.test(a) ? `"${a}"` : a)).join(' '))
   console.log('='.repeat(68) + '\n')
-  // Do not use shell:true — paths with spaces must stay as one argv entry.
-  const result = spawn.sync(process.execPath, args, {
+  // Keep paths with spaces as one argv entry (no shell joining).
+  const result = spawnSync(process.execPath, args, {
     cwd: root,
     stdio: 'inherit',
     env: process.env,
+    shell: false,
   })
   if (result.error) throw result.error
   if (result.status !== 0) throw new Error(`打包退出码 ${result.status}`)
